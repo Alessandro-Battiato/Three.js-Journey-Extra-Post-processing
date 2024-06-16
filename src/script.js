@@ -187,6 +187,7 @@ gui.add(unrealBloomPass, "threshold", 0, 1, 0.001);
 const TintShader = {
     uniforms: {
         tDiffuse: { value: null },
+        uTint: { value: null },
     },
     vertexShader: `
         varying vec2 vUv;
@@ -199,17 +200,25 @@ const TintShader = {
     `,
     fragmentShader: `
         uniform sampler2D tDiffuse;
+        uniform vec3 uTint;
 
         varying vec2 vUv;
 
         void main() {
             vec4 color = texture2D(tDiffuse, vUv);
+            color.rgb += uTint;
+
             gl_FragColor = color;
         }
     `,
 };
 const tintPass = new ShaderPass(TintShader);
+tintPass.material.uniforms.uTint.value = new THREE.Vector3();
 effectComposer.addPass(tintPass);
+
+gui.add(tintPass.material.uniforms.uTint.value, "x", -1, 1, 0.01).name("red");
+gui.add(tintPass.material.uniforms.uTint.value, "y", -1, 1, 0.01).name("green");
+gui.add(tintPass.material.uniforms.uTint.value, "z", -1, 1, 0.01).name("blue");
 
 // Gamma Correction pass
 const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
