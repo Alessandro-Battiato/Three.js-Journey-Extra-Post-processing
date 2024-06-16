@@ -4,6 +4,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { DotScreenPass } from "three/examples/jsm/postprocessing/DotScreenPass.js";
+import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
 import GUI from "lil-gui";
 
 /**
@@ -143,7 +144,13 @@ const renderPass = new RenderPass(scene, camera);
 effectComposer.addPass(renderPass);
 
 const dotScreenPass = new DotScreenPass();
+dotScreenPass.enabled = false; // no performance issues keeping these chunks of code active
 effectComposer.addPass(dotScreenPass);
+
+const glitchPass = new GlitchPass();
+glitchPass.goWild = true; // this makes the effect go crazy!!
+glitchPass.enabled = true; // no performance issues keeping these chunks of code active
+effectComposer.addPass(glitchPass);
 
 /**
  * Animate
