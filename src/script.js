@@ -147,7 +147,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
  */
 // Render target
 const renderTarget = new THREE.WebGLRenderTarget(800, 600, {
-    // samples: renderer.getPixelRatio() === 1 ? 2 : 0, // the higher the number, the worse the performance, thus even though this number solves the stair like artifact for the anti alias, it needs to be as low as possible
+    samples: renderer.getPixelRatio() === 1 ? 2 : 0, // the higher the number, the worse the performance, thus even though this number solves the stair like artifact for the anti alias, it needs to be as low as possible
 });
 
 const effectComposer = new EffectComposer(renderer, renderTarget);
@@ -175,8 +175,12 @@ const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
 effectComposer.addPass(gammaCorrectionPass);
 
 // SMAA pass, another solution for the anti alias stair like effect, it needs to stay AFTERWARDS as not to create problems with gamma correction pass
-const smaaPass = new SMAAPass();
-effectComposer.addPass(smaaPass);
+if (renderer.getPixelRatio() === 1 && !renderer.capabilities.isWebGL2) {
+    // This is a last resort fix for the artifact, as it's worse for performances, thus if a user is using an older browser which doesn't support the above fix renderer.getPixelRatio() === 1 ? 2 : 0
+    // then and only then we apply this fix
+    const smaaPass = new SMAAPass();
+    effectComposer.addPass(smaaPass);
+}
 
 /**
  * Animate
