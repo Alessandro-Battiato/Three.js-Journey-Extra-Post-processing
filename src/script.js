@@ -144,7 +144,12 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 /**
  * Post processing
  */
-const effectComposer = new EffectComposer(renderer);
+// Render target
+const renderTarget = new THREE.WebGLRenderTarget(800, 600, {
+    samples: 2, // the higher the number, the worse the performance, thus even though this number solves the stair like artifact for the anti alias, it needs to be as low as possible
+});
+
+const effectComposer = new EffectComposer(renderer, renderTarget);
 effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 effectComposer.setSize(sizes.width, sizes.height);
 
