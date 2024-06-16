@@ -253,8 +253,50 @@ const DisplacementShader = {
     `,
 };
 const displacementPass = new ShaderPass(DisplacementShader);
+displacementPass.enabled = false;
 displacementPass.material.uniforms.uTime.value = 0;
 effectComposer.addPass(displacementPass);
+
+// Displacement pass
+const normalDisplacementShader = {
+    uniforms: {
+        tDiffuse: { value: null },
+        uNormalMap: { value: null },
+    },
+    vertexShader: `
+        varying vec2 vUv;
+
+        void main() {
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        
+                vUv = uv;
+            }
+    `,
+    fragmentShader: `
+        uniform sampler2D tDiffuse;
+        uniform sampler2D uNormalMap;
+
+        varying vec2 vUv;
+
+        void main() {
+            vec3 normalColor = texture2D(uNormalMap, vUv).xyz * 2.0 - 1.0;
+
+            vec2 newUv = vUv + normalColor.xy * 0.1; // change the 0.1 value in order to make the effect weaker/stronger
+            vec4 color = texture2D(tDiffuse, newUv);
+
+            vec3 lightDirection = normalize(vec3(- 1.0, 1.0, 0.0)); // we always normalize directions
+            float lightness = clamp(dot(normalColor, lightDirection), 0.0, 1.0);
+            color.rgb += lightness * 2.0;
+
+            gl_FragColor = color;
+        }
+    `,
+};
+const normalDisplacementPass = new ShaderPass(normalDisplacementShader);
+normalDisplacementPass.material.uniforms.uNormalMap.value = textureLoader.load(
+    "/textures/interfaceNormalMap.png"
+);
+effectComposer.addPass(normalDisplacementPass);
 
 // Gamma Correction pass
 const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
@@ -277,7 +319,7 @@ const tick = () => {
     const elapsedTime = clock.getElapsedTime();
 
     // Update passes
-    displacementPass.material.uniforms.uTime.value = elapsedTime;
+    // displacementPass.material.uniforms.uTime.value = elapsedTime;
 
     // Update controls
     controls.update();
