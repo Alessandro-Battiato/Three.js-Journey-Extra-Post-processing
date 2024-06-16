@@ -5,6 +5,9 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { DotScreenPass } from "three/examples/jsm/postprocessing/DotScreenPass.js";
 import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
+import { RGBShiftShader } from "three/examples/jsm/shaders/RGBShiftShader.js";
+import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectionShader.js";
 import GUI from "lil-gui";
 
 /**
@@ -130,6 +133,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.toneMapping = THREE.ReinhardToneMapping;
 renderer.toneMappingExposure = 1.5;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -149,8 +153,15 @@ effectComposer.addPass(dotScreenPass);
 
 const glitchPass = new GlitchPass();
 glitchPass.goWild = true; // this makes the effect go crazy!!
-glitchPass.enabled = true; // no performance issues keeping these chunks of code active
+glitchPass.enabled = false;
 effectComposer.addPass(glitchPass);
+
+const rgbShiftPass = new ShaderPass(RGBShiftShader);
+effectComposer.addPass(rgbShiftPass);
+
+// Gamma Correction pass
+const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
+effectComposer.addPass(gammaCorrectionPass);
 
 /**
  * Animate
