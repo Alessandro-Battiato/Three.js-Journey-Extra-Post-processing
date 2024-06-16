@@ -6,6 +6,7 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { DotScreenPass } from "three/examples/jsm/postprocessing/DotScreenPass.js";
 import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
+import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
 import { RGBShiftShader } from "three/examples/jsm/shaders/RGBShiftShader.js";
 import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectionShader.js";
 import GUI from "lil-gui";
@@ -146,7 +147,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
  */
 // Render target
 const renderTarget = new THREE.WebGLRenderTarget(800, 600, {
-    samples: renderer.getPixelRatio() === 1 ? 2 : 0, // the higher the number, the worse the performance, thus even though this number solves the stair like artifact for the anti alias, it needs to be as low as possible
+    // samples: renderer.getPixelRatio() === 1 ? 2 : 0, // the higher the number, the worse the performance, thus even though this number solves the stair like artifact for the anti alias, it needs to be as low as possible
 });
 
 const effectComposer = new EffectComposer(renderer, renderTarget);
@@ -172,6 +173,10 @@ effectComposer.addPass(rgbShiftPass);
 // Gamma Correction pass
 const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
 effectComposer.addPass(gammaCorrectionPass);
+
+// SMAA pass, another solution for the anti alias stair like effect, it needs to stay AFTERWARDS as not to create problems with gamma correction pass
+const smaaPass = new SMAAPass();
+effectComposer.addPass(smaaPass);
 
 /**
  * Animate
